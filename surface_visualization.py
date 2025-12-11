@@ -26,7 +26,13 @@ from sj_matplotlib import make_colorbar
 from brain_coord import image2referenceCoord
 
 # Functions
-def draw_surf_roi(roi_value_array, roi_info, surf_hemisphere, resolution = 32, alpha = 0.3):
+def draw_surf_roi(roi_value_array, 
+                  roi_info, 
+                  surf_hemisphere, 
+                  resolution = 32, 
+                  alpha = 0.3, 
+                  is_sulcus_label = True,
+                  sulcus_dummy_name: str = "sulcus"):
     """
     Draw ROI on surface map
 
@@ -34,16 +40,31 @@ def draw_surf_roi(roi_value_array, roi_info, surf_hemisphere, resolution = 32, a
     :param roi_info(dictionary -k: roi_name, -v: location(xy)): roi information dictionary
     :param surf_hemisphere(string): orientation of hemisphere ex) "L", "R"
     """
+    # ROI Colouring
     ax = surf.plot.plotmap(data = roi_value_array, 
                            surf = f"fs{resolution}k_{surf_hemisphere}",
                            threshold = 0.01,
                            alpha = alpha)
+
+    # Render ROI text
     for i, roi_name in enumerate(roi_info):
         loc = roi_info[roi_name]
         ax.text(x = loc[0], y = loc[1], s = roi_name)
+
+    # Show sulcus
+    show_sulcus(surf_ax = ax, 
+                hemisphere = surf_hemisphere,
+                isLabel = is_sulcus_label,
+                sulcus_dummy_name = sulcus_dummy_name)
     return (ax.get_figure(), ax) 
 
-def draw_surf_selectedROI(surf_roi_labels, roi_name, surf_hemisphere, resolution = 32, alpha = 0.3):
+def draw_surf_selectedROI(surf_roi_labels,
+                          roi_name, 
+                          surf_hemisphere, 
+                          resolution = 32, 
+                          alpha = 0.3,
+                          is_sulcus_label = True,
+                          sulcus_dummy_name: str = "sulcus"):
     """
     Draw surface roi
 
@@ -51,11 +72,18 @@ def draw_surf_selectedROI(surf_roi_labels, roi_name, surf_hemisphere, resolution
     :param roi_name(string): roi name
     :param surf_hemisphere(string): orientation of hemisphere ex) "L", "R"
     """
+    # ROI Colouring 
     roi_value_array = np.where(surf_roi_labels == roi_name, 1, 0)
     ax = surf.plot.plotmap(data = roi_value_array, 
                            surf = f"fs{resolution}k_{surf_hemisphere}",
                            threshold = 0.01,
                            alpha = alpha)
+
+    # Show sulcus
+    show_sulcus(surf_ax = ax, 
+                hemisphere = surf_hemisphere,
+                isLabel = is_sulcus_label,
+                sulcus_dummy_name = sulcus_dummy_name)
     return (ax.get_figure(), ax) 
 
 def show_surf_withGrid(surf_vis_ax, x_count = 30, y_count = 30):
@@ -342,6 +370,56 @@ def show_both_hemi_stats(l_stat,
                                     zoom = zoom)
     return fig, ax
 
+def show_both_rois(l_roi_values: np.ndarray, 
+                         r_roi_values: np.ndarray,
+                         l_roi_text_loc: dict,
+                         r_roi_text_loc: dict,
+                         save_dir_path,
+                         surf_resolution = 32,
+                         zoom = 0.2,
+                         dpi = 300,
+                         is_sulcus_label = True,
+                         sulcus_dummy_name: str = "sulcus"):
+    """
+    Show stats on both surf hemispheres
+
+    :param l_roi_values: left hemi roi value array
+    :param l_roi_text_loc(dictionary -k: roi_name, -v: location(xy)): left hemi roi information
+    :param r_roi_values: right hemi roi value array
+    :param r_roi_text_loc(dictionary -k: roi_name, -v: location(xy)): right hemi roi information
+    :param save_dir_path(string): directory path for saving images
+    :param surf_resolution(int): surface resolution
+    :param dpi(int): dpi for saving image
+    :param is_sulcus_label(boolean): is showing sulcus label on the flatmap
+    :param sulcus_dummy_name: sulcus dummy file name ex) "sulcus", "sulcus_sensorimotor"
+    
+    return fig, axis
+    """
+    
+    # Left
+    plt.clf()
+    _, l_ax = draw_surf_roi(l_roi_values, l_roi_text_loc, "L")
+    l_surf_img_path = os.path.join(save_dir_path, f"L_hemi_roi.png")
+    l_ax.get_figure().savefig(l_surf_img_path, dpi = dpi, transparent = True, bbox_inches = "tight")
+    print(f"save: {l_surf_img_path}")
+    
+    # Right
+    plt.clf()
+    _, r_ax = draw_surf_roi(r_roi_values, r_roi_text_loc, "R")
+    r_surf_img_path = os.path.join(save_dir_path, f"R_hemi_roi.png")
+    r_ax.get_figure().savefig(r_surf_img_path, dpi = dpi, transparent = True, bbox_inches = "tight")
+    print(f"save: {r_surf_img_path}")
+    
+    # Both
+    plt.clf()
+    both_surf_img_path = os.path.join(save_dir_path, f"both_hemi_roi")
+    fig, ax = show_both_hemi_images(l_surf_img_path = l_surf_img_path, 
+                                    r_surf_img_path = r_surf_img_path, 
+                                    both_surf_img_path = both_surf_img_path,
+                                    colorbar_path = None,
+                                    zoom = zoom)
+    return fig, ax
+    
 def plot_virtualStrip_on3D_surf(virtual_stip_mask, 
                                 save_dir_path, 
                                 vmax,
