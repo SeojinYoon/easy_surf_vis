@@ -599,6 +599,8 @@ def show_interactive_brain(data_info: dict,
         ))
 
     # Color bar
+    n_inner_ticks = color_bar_info.get("n_inner_ticks")
+    tick_precision = color_bar_info.get("tick_precision")
     tick_vals = np.linspace(cscale[0], cscale[1], n_inner_ticks + 2)
     tick_text = [f"{v:.{tick_precision}f}" for v in tick_vals]
 
