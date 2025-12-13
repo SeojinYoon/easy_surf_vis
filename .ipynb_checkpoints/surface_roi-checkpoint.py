@@ -10,7 +10,7 @@ from cv2 import minAreaRect, boxPoints, pointPolygonTest
 # Custom Libraries
 from surface_data import surf_paths
 
-# Detection
+# Functions
 def detect_roi_names(sampling_coverages, hemisphere = "L", atlas = "Brodmann"):
     """
     Detect sampling coverage's roi name

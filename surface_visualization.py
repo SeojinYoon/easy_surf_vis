@@ -9,6 +9,7 @@ import matplotlib.pylab as plt
 import matplotlib.image as mpimg
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from nilearn.plotting import plot_surf_roi
+import SUITPy as suit
 from SUITPy.flatmap import _map_color
 import plotly.graph_objects as go
 from IPython.display import HTML
@@ -17,13 +18,7 @@ from IPython.display import HTML
 from surface_data import surf_paths, map_2d_to3d
 from surface_roi import show_sulcus
 from surface_util import mean_datas
-
-sys.path.append("/home/seojin")
-import surfAnalysisPy as surf # Dierdrichsen lab's library
-
-sys.path.append("/home/seojin/Seojin_commonTool/Module")
-from sj_matplotlib import make_colorbar
-from brain_coord import image2referenceCoord
+from custom_matplotlib import make_colorbar
 
 # Functions
 def draw_surf_roi(roi_value_array, 
@@ -41,10 +36,10 @@ def draw_surf_roi(roi_value_array,
     :param surf_hemisphere(string): orientation of hemisphere ex) "L", "R"
     """
     # ROI Colouring
-    ax = surf.plot.plotmap(data = roi_value_array, 
-                           surf = f"fs{resolution}k_{surf_hemisphere}",
-                           threshold = 0.01,
-                           alpha = alpha)
+    ax = plotmap(data = roi_value_array, 
+                 surf_hemisphere = f"{surf_hemisphere}",
+                 threshold = 0.01,
+                 alpha = alpha)
 
     # Render ROI text
     for i, roi_name in enumerate(roi_info):
@@ -74,10 +69,10 @@ def draw_surf_selectedROI(surf_roi_labels,
     """
     # ROI Colouring 
     roi_value_array = np.where(surf_roi_labels == roi_name, 1, 0)
-    ax = surf.plot.plotmap(data = roi_value_array, 
-                           surf = f"fs{resolution}k_{surf_hemisphere}",
-                           threshold = 0.01,
-                           alpha = alpha)
+    ax = plotmap(data = roi_value_array, 
+                 surf_hemisphere = f"{surf_hemisphere}",
+                 threshold = 0.01,
+                 alpha = alpha)
 
     # Show sulcus
     show_sulcus(surf_ax = ax, 
@@ -139,11 +134,11 @@ def show_both_hemi_sampling_coverage(l_sampling_coverage: np.array,
     plt.clf()
     l_sampling_coverages_sum = np.array([np.where(e != 0, i/10, 0) for i, e in enumerate(l_sampling_coverage)]).T
     l_sampling_coverages_sum = np.sum(l_sampling_coverages_sum, axis = 1)
-    l_coverage_ax = surf.plot.plotmap(data = l_sampling_coverages_sum, 
-                                      surf = f"fs{surf_resolution}k_L", 
-                                      colorbar = False, 
-                                      threshold = 0.001,
-                                      alpha = 0.5)
+    l_coverage_ax = plotmap(data = l_sampling_coverages_sum, 
+                            surf_hemisphere = f"L", 
+                            colorbar = False, 
+                            threshold = 0.001,
+                            alpha = 0.5)
     show_sulcus(surf_ax = l_coverage_ax, 
                 hemisphere = "L", 
                 isLabel = is_sulcus_label,
@@ -166,11 +161,11 @@ def show_both_hemi_sampling_coverage(l_sampling_coverage: np.array,
     plt.clf()
     r_sampling_coverages_sum = np.array([np.where(e != 0, i/10, 0) for i, e in enumerate(r_sampling_coverage)]).T
     r_sampling_coverages_sum = np.sum(r_sampling_coverages_sum, axis = 1)
-    r_coverage_ax = surf.plot.plotmap(data = r_sampling_coverages_sum, 
-                                      surf = f"fs{surf_resolution}k_R",
-                                      colorbar = False, 
-                                      threshold = 0.001,
-                                      alpha = 0.5)
+    r_coverage_ax = plotmap(data = r_sampling_coverages_sum, 
+                            surf_hemisphere = f"R",
+                            colorbar = False, 
+                            threshold = 0.001,
+                            alpha = 0.5)
     show_sulcus(surf_ax = r_coverage_ax, 
                 hemisphere = "R",
                 isLabel = is_sulcus_label,
@@ -283,11 +278,11 @@ def show_both_hemi_stats(l_stat,
     
     # Left
     plt.clf()
-    l_ax = surf.plot.plotmap(data = l_stat, 
-                           surf = f"fs{surf_resolution}k_L", 
-                           colorbar = False, 
-                           threshold = threshold,
-                           cscale = cscale)
+    l_ax = plotmap(data = l_stat, 
+                   surf_hemisphere = f"L", 
+                   colorbar = False, 
+                   threshold = threshold,
+                   cscale = cscale)
     show_sulcus(surf_ax = l_ax, 
                 hemisphere = "L",
                 isLabel = is_sulcus_label,
@@ -315,9 +310,9 @@ def show_both_hemi_stats(l_stat,
     
     # Right
     plt.clf()
-    r_ax = surf.plot.plotmap(data = r_stat, 
-                           surf = f"fs{surf_resolution}k_R", 
-                           colorbar = False, 
+    r_ax = plotmap(data = r_stat, 
+                           surf_hemisphere = f"R", 
+                           colorbar = False,
                            threshold = threshold,
                            cscale = cscale)
     show_sulcus(surf_ax = r_ax, 
@@ -844,17 +839,126 @@ def show_interactive_brain(data_info: dict,
     </div>
     """
     return HTML(html)
+
+def plotmap(
+        data,
+        surf_hemisphere,
+        underlay=None,
+        undermap='gray',
+        underscale=[-1.5, 1],
+        overlay_type='func',
+        threshold=None,
+        cmap=None,
+        cscale=None,
+        label_names=None,
+        borders=None,
+        bordercolor = 'k',
+        bordersize = 2,
+        alpha=1.0,
+        render='matplotlib',
+        hover = 'auto',
+        new_figure=False,
+        colorbar=False,
+        cbar_tick_format="%.2g",
+        backgroundcolor = 'w',
+        frame = None
+        ):
+    """Plot activity on a flatmap
+    -- Adapted from https://github.com/DiedrichsenLab/surfAnalysisPy
+    
+    Args:
+        data (np.array, giftiImage, or name of gifti file):
+            Data to be plotted, should be a 28935x1 vector
+        surf_hemisphere (str or giftiImage):
+            orientation of hemisphere, or ('L','R')
+        underlay (str, giftiImage, or np-array):
+            Full filepath of the file determining underlay coloring (default: sulc for standard surface)
+        undermap (str)
+            Matplotlib colormap used for underlay (default: gray)
+        underscale (array-like)
+            Colorscale [min, max] for the underlay (default: [-1, 0.5])
+        overlay_type (str)
+            'func': functional activation (default)
+            'label': categories
+            'rgb': RGB(A) values (0-1) directly specified. Alpha is optional
+        threshold (scalar or array-like)
+            Threshold for functional overlay. If one value is given, it is used as a positive threshold.
+            If two values are given, an positive and negative threshold is used.
+        cmap (str)
+            A Matplotlib colormap or an equivalent Nx3 or Nx4 floating point array (N rgb or rgba values). (defaults to 'jet' if none given)
+        label_names (list)
+            labelnames (default is None - extracts from .label.gii )
+        borders (str)
+            Full filepath of the borders txt file 
+        bordercolor (char or matplotlib.color)
+            Color of border - defaults to 'k'
+        bordersize (int)
+            Size of the border points - defaults to 2
+        cscale (int array)
+            Colorscale [min, max] for the overlay, valid input values from -1 to 1 (default: [overlay.max, overlay.min])
+        alpha (float)
+            Opacity of the overlay (default: 1)
+        render (str)
+            Renderer for graphic display 'matplot' / 'plotly'. Dafault is matplotlib
+        hover (str)
+            When renderer is plotly, it determines what is displayed in the hover label: 'auto', 'value', or None
+        new_figure (bool)
+            If False, plot renders into matplotlib's current axis. If True, it creates a new figure (default=True)
+        colorbar (bool)
+            By default, colorbar is not plotted into matplotlib's current axis (or new figure if new_figure is set to True)
+        cbar_tick_format : str, optional
+            Controls how to format the tick labels of the colorbar, and for the hover label.
+            Ex: use "%i" to display as integers.
+            Default='%.2g' for scientific notation.
+        backgroundcolor (str): 
+            Color for the background of the plot (default: 'w')
+        frame (list): [Left, Right, Top, Bottom] margins for the plot (default: plot entire surface )
+
+    Returns:
+        ax (matplotlib.axis)
+            If render is matplotlib, the function returns the axis
+        fig (plotly.go.Figure)
+            If render is plotly, it returns Figure object
+
+    """
+
+    path_info = surf_paths(surf_hemisphere)
+    surf = path_info[f"{surf_hemisphere}_template_surface_path"]
+    underlay = path_info[f"{surf_hemisphere}_shape_gii_path"]
+
+    fig = suit.flatmap.plot( data,surf,
+        underlay,undermap,underscale,
+        overlay_type,threshold,cmap,cscale,label_names,
+        borders,bordercolor,bordersize,
+        alpha,render,hover,new_figure,colorbar,
+        cbar_tick_format,backgroundcolor,frame)
+    return fig
+
+def image2referenceCoord(ijk, affine):
+    """
+    change image coordinate to reference coordinate
+    reference coordinate can be scanner coordinate or MNI coordinate...
+    
+    :param ijk: image coordinate(np.array): image coordinates ex) [0,0,0]
+    :param affine: affine matrix(np.array): affine transformation matrix 
+    
+    :return scanner coordinate(np.array): reference coordinates 
+    """
+    return np.matmul(affine, np.array([ijk[0], ijk[1], ijk[2], 1]))[0:3]
     
 # Examples
 if __name__ == "__main__":
-    hemisphere = "L"
-    roi_values = np.load(f"/mnt/ext1/seojin/dierdrichsen_surface_mask/Brodmann/{hemisphere}_roi_values.npy")
-    with open(os.path.join(surface_mask_dir_path, f"{hemisphere}_roi_vertex_info.json"), 'rb') as f:
-        loaded_info = json.load(f)
-    draw_surf_roi(roi_values, loaded_info, "L")
+    pass
     
-
-    volume_data_dir_path = "/mnt/ext1/seojin/HR/exp_blueprint_0324v4/fMRI_data/output/Group/rsa/rdm/set/WholeSet/Searchlight/base_seq_move_rest_separetely/None/react_mean_dissim_withBaseline"
-    volume_data_data_paths = sorted(glob(volume_data_dir_path + "/??.nii.gz"))
+    hemisphere = "L"
+    from surface_data import roi_dir_path
+    roi_values = os.path.join(roi_dir_path, "Brodmann", f"{hemisphere}_roi_values.npy")
+    roi_vertex_info = os.path.join(roi_dir_path, "Brodmann", f"{hemisphere}_roi_vertex_info.json")
+    with open(roi_vertex_info, 'rb') as f:
+        loaded_info = json.load(f)
+    draw_surf_roi(roi_values, loaded_info, hemisphere)
+    
+    from surface_data import sample_dir_path
+    volume_data_data_paths = sorted(glob(sample_dir_path + "/*.nii.gz"))
     show_interactive_brain(volume_data_data_paths, 0.001, cscale = (0.001, 0.005))
     

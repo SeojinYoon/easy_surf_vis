@@ -6,9 +6,19 @@ import numpy as np
 import nitools as nt
 import nibabel as nb
 
+# Paths
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+data_dir_path = os.path.join(base_dir, "Datas")
+sample_dir_path = os.path.join(data_dir_path, "Sample")
+template_dir_path = os.path.join(data_dir_path, "Template")
+sulcus_dir_path = os.path.join(data_dir_path, "Sulcus")
+
+roi_dir_path = os.path.join(data_dir_path, "ROI")
+
 # Functions
 def surf_paths(surf_hemisphere: str, 
-               surf_dir_path: str = "/home/seojin/Seojin_commonTool/Module/Brain_Surface/Datas", 
+               surf_dir_path: str = data_dir_path, 
                surf_resolution: int = 32,
                sulcus_dummy_name: str = "sulcus",
                atlas: str = "Brodmann"):
@@ -21,19 +31,19 @@ def surf_paths(surf_hemisphere: str,
     :param sulcus_dummy_name: sulcus data name
     :param atlas: atlas name
     """
-    
+
     # Template
-    pial_surf_path = os.path.join(surf_dir_path, "Template", f"fs_LR.{surf_resolution}k.{surf_hemisphere}.pial.surf.gii")
-    white_surf_path = os.path.join(surf_dir_path, "Template", f"fs_LR.{surf_resolution}k.{surf_hemisphere}.white.surf.gii")
-    template_surface_path = os.path.join(surf_dir_path, "Template", f"fs_LR.{surf_resolution}k.{surf_hemisphere}.flat.surf.gii")
-    inflated_brain_path = os.path.join(surf_dir_path, "Template", f"fs_LR.{surf_resolution}k.{surf_hemisphere}.inflated.surf.gii")
-    shape_gii_path = os.path.join(surf_dir_path, "Template", f"fs_LR.32k.{surf_hemisphere}.shape.gii")
+    pial_surf_path = os.path.join(template_dir_path, f"fs_LR.{surf_resolution}k.{surf_hemisphere}.pial.surf.gii")
+    white_surf_path = os.path.join(template_dir_path, f"fs_LR.{surf_resolution}k.{surf_hemisphere}.white.surf.gii")
+    template_surface_path = os.path.join(template_dir_path, f"fs_LR.{surf_resolution}k.{surf_hemisphere}.flat.surf.gii")
+    inflated_brain_path = os.path.join(template_dir_path, f"fs_LR.{surf_resolution}k.{surf_hemisphere}.inflated.surf.gii")
+    shape_gii_path = os.path.join(template_dir_path, f"fs_LR.32k.{surf_hemisphere}.shape.gii")
     
     # Sulcus
-    sulcus_path = os.path.join(surf_dir_path, "Sulcus", f"{surf_hemisphere}_{sulcus_dummy_name}.json")
+    sulcus_path = os.path.join(sulcus_dir_path, f"{surf_hemisphere}_{sulcus_dummy_name}.json")
     
     # ROI
-    roi_label_path = os.path.join(surf_dir_path, "ROI", atlas, f"{surf_hemisphere}_rois.npy")
+    roi_label_path = os.path.join(roi_dir_path, atlas, f"{surf_hemisphere}_rois.npy")
 
     return {
         f"{surf_hemisphere}_pial_surf_path" : pial_surf_path,
@@ -217,9 +227,10 @@ def map_2d_to3d(volume_data_path: str,
 if __name__ == "__main__":
     surf_paths("L")
 
-    nii_path = "/mnt/ext1/seojin/temp/stat.nii"
-    l_pial_surf_path = "/mnt/sda2/Common_dir/Atlas/Surface/fs_LR_32/fs_LR.32k.L.pial.surf.gii"
-    l_white_surf_path = "/mnt/sda2/Common_dir/Atlas/Surface/fs_LR_32/fs_LR.32k.L.white.surf.gii"
+    nii_path = os.path.join(sample_dir_path, "sample_3d_data.nii.gz")
+    l_pial_surf_path = os.path.join(template_dir_path, "fs_LR.32k.L.pial.surf.gii")
+    l_white_surf_path = os.path.join(template_dir_path, "fs_LR.32k.L.white.surf.gii")
+    
     vol_to_surf(volume_data_path = nii_path,
                 pial_surf_path = l_pial_surf_path,
                 white_surf_path = l_white_surf_path)

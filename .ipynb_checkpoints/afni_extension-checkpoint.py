@@ -5,6 +5,9 @@ import subprocess
 import numpy as np
 import pandas as pd
 
+# Custom Libraries
+from general_util import get_multiple_elements_in_list
+
 # Functions
 def set_afni_abin(abin_path):
     """
@@ -192,14 +195,7 @@ def search_stringAcrossTarget(targets,
         else:
             return return_func()
 
-def get_multiple_elements_in_list(in_list, in_indices):
-    """
-    Get multiple element using indexes
-    
-    :param in_list: data(list)
-    :param in_indices: indexes to be extracted from in_list
-    """
-    return [in_list[i] for i in in_indices]
+
     
 if __name__ == "__main__":
     set_afni_abin("/Users/clmn/abin/afni")

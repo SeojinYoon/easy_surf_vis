@@ -13,12 +13,7 @@ from matplotlib.lines import Line2D
 
 # Custom Libraries
 from surface_data import surf_paths, load_surfData_fromVolume
-
-sys.path.append("/home/seojin")
-import surfAnalysisPy as surf # Dierdrichsen lab's library
-
-sys.path.append("/home/seojin/Seojin_commonTool/Module")
-from sj_matplotlib import draw_ticks, draw_spine, draw_label
+from custom_matplotlib import draw_ticks, draw_spine, draw_label
 
 # Functions
 def surface_profile(template_surface_path, 

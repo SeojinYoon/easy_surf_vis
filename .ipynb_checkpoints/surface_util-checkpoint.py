@@ -85,13 +85,16 @@ def mean_datas(volume_data_paths: list,
     return return_data
 
 if __name__ == "__main__":
-    template_path = '/mnt/sda2/Common_dir/Atlas/Surface/fs_LR_32/fs_LR.32k.L.flat.surf.gii'
+    from surface_data import template_dir_path, sample_dir_path
+    
+    template_path = os.path.join(template_dir_path, "fs_LR.32k.L.flat.surf.gii")
     temploate_surface_data = nb.load(template_path)
     vertex_locs = temploate_surface_data.darrays[0].data[:, :2]
 
-    nii_path = "/mnt/ext1/seojin/temp/stat.nii"
-    pial_surf_path = '/mnt/sda2/Common_dir/Atlas/Surface/fs_LR_32/fs_LR.32k.L.pial.surf.gii'
-    white_surf_path = '/mnt/sda2/Common_dir/Atlas/Surface/fs_LR_32/fs_LR.32k.L.white.surf.gii'
+    
+    nii_path = os.path.join(sample_dir_path, "sample_3d_data.nii.gz")
+    pial_surf_path = os.path.join(template_dir_path, "fs_LR.32k.L.pial.surf.gii")
+    white_surf_path = os.path.join(template_dir_path, "fs_LR.32k.L.white.surf.gii")
     surface_data = vol_to_surf(volume_data_path = nii_path,
                                pial_surf_path = spial_surf_path,
                                white_surf_path = white_surf_path,
@@ -100,6 +103,7 @@ if __name__ == "__main__":
                                                 values = surface_data, 
                                                 sigma = 2)
 
-    l_virtual_stip_mask = np.load("/home/seojin/temp/l_virtual_strip_mask.npy")
+    l_virtual_stip_mask_path = os.path.join(sample_dir_path, "l_virtual_strip_mask.npy")
+    l_virtual_stip_mask = np.load(l_virtual_stip_mask_path)
     get_bounding_box("L", l_virtual_stip_mask)
     
