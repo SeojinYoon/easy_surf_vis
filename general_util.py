@@ -122,6 +122,23 @@ def get_multiple_elements_in_list(in_list, in_indices):
     :param in_indices: indexes to be extracted from in_list
     """
     return [in_list[i] for i in in_indices]
+
+def get_unique_values(data):
+    """
+    Get unique values from data
+    
+    :param data: (list)
+    
+    return (list)
+    """
+    
+    unique_values = []
+    for e in data:
+        if e in unique_values:
+            pass
+        else:
+            unique_values.append(e)
+    return unique_values
     
 # Examples                      
 if __name__ == "__main__":
