@@ -15,10 +15,10 @@ import plotly.graph_objects as go
 from IPython.display import HTML
 
 # Custom Libraries
-from surface_data import surf_paths, map_2d_to3d
-from surface_roi import show_sulcus
-from surface_util import mean_datas
-from custom_matplotlib import make_colorbar
+from cores.surface_data import surf_paths, map_2d_to3d
+from cores.surface_roi import show_sulcus
+from cores.surface_util import mean_datas
+from cores.custom_matplotlib import make_colorbar
 
 # Functions
 def draw_surf_roi(roi_value_array, 

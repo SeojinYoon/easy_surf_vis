@@ -7,7 +7,7 @@ from flask import Flask, request, jsonify
 
 # Custom Libraries
 sys.path.append(str(Path(__file__).resolve().parent.parent))
-from afni_extension import whereami
+from cores.afni_extension import whereami
 
 # 
 app = Flask(__name__)
