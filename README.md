@@ -1,7 +1,10 @@
 
-# 
+# easysurfvis
 
-This sources are adapted from https://github.com/DiedrichsenLab/surfAnalysisPy
+This library is based on rsatoolbox(https://github.com/rsagroup/rsatoolbox).
+
+# Installation
+- pip install easysurfvis
 
 # Dependencies
 
@@ -10,5 +13,3 @@ This sources are adapted from https://github.com/DiedrichsenLab/surfAnalysisPy
 - matplotlib
 
 # License - GPL-3.0 license
-
-
