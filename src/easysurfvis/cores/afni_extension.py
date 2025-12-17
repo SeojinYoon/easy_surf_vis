@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 # Custom Libraries
-from general_util import get_multiple_elements_in_list
+from easysurfvis.cores.general_util import get_multiple_elements_in_list
 
 # Functions
 def set_afni_abin(abin_path):

@@ -5,7 +5,7 @@ import nibabel as nb
 from scipy.spatial import KDTree
 
 # Custom Libraries
-from surface_data import surf_paths, load_surfData_fromVolume, vol_to_surf
+from easysurfvis.cores.surface_data import surf_paths, load_surfData_fromVolume, vol_to_surf
 
 # Functions
 def gaussian_weighted_smoothing(coords, values, sigma=1.0):

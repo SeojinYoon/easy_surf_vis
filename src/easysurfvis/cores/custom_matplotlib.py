@@ -10,7 +10,7 @@ from matplotlib.lines import Line2D
 from matplotlib.ticker import FuncFormatter
 
 # Custom Libraries
-from general_util import search_stringAcrossTarget, find_consecutive_ranges
+from easysurfvis.cores.general_util import search_stringAcrossTarget, find_consecutive_ranges
 
 # Functions
 def draw_title(axis, title_info = {}):

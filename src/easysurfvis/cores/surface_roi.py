@@ -8,7 +8,7 @@ from collections import Counter
 from cv2 import minAreaRect, boxPoints, pointPolygonTest
 
 # Custom Libraries
-from surface_data import surf_paths
+from easysurfvis.cores.surface_data import surf_paths
 
 # Functions
 def detect_roi_names(sampling_coverages, hemisphere = "L", atlas = "Brodmann"):
