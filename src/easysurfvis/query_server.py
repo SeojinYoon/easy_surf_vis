@@ -6,7 +6,11 @@ from flask_cors import CORS
 from flask import Flask, request, jsonify
 
 # Custom Libraries
-from easysurfvis.cores.afni_extension import whereami
+if os.getenv("easysurfvis_isRunSource"):
+    sys.path.append(os.getenv("easysurfvis_source_home"))
+    from cores.afni_extension import whereami
+else:
+    from easysurfvis.cores.afni_extension import whereami
 
 # 
 app = Flask(__name__)

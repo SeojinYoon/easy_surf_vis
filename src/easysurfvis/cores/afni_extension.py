@@ -6,7 +6,11 @@ import numpy as np
 import pandas as pd
 
 # Custom Libraries
-from easysurfvis.cores.general_util import get_multiple_elements_in_list
+if os.getenv("easysurfvis_isRunSource"):
+    sys.path.append(os.getenv("easysurfvis_source_home"))
+    from cores.general_util import get_multiple_elements_in_list
+else:
+    from easysurfvis.cores.general_util import get_multiple_elements_in_list
 
 # Functions
 def set_afni_abin(abin_path):

@@ -15,10 +15,17 @@ import plotly.graph_objects as go
 from IPython.display import HTML
 
 # Custom Libraries
-from easysurfvis.cores.surface_data import surf_paths, map_2d_to3d
-from easysurfvis.cores.surface_roi import show_sulcus
-from easysurfvis.cores.surface_util import mean_datas
-from easysurfvis.cores.custom_matplotlib import make_colorbar
+if os.getenv("easysurfvis_isRunSource"):
+    sys.path.append(os.getenv("easysurfvis_source_home"))
+    from cores.surface_data import surf_paths, map_2d_to3d
+    from cores.surface_roi import show_sulcus
+    from cores.surface_util import mean_datas
+    from cores.custom_matplotlib import make_colorbar
+else:
+    from easysurfvis.cores.surface_data import surf_paths, map_2d_to3d
+    from easysurfvis.cores.surface_roi import show_sulcus
+    from easysurfvis.cores.surface_util import mean_datas
+    from easysurfvis.cores.custom_matplotlib import make_colorbar
 
 # Functions
 def draw_surf_roi(roi_value_array, 
