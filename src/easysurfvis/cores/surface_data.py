@@ -11,11 +11,10 @@ from pathlib import Path
 current_file_dir = Path(os.path.dirname(os.path.abspath(__file__)))
 base_dir = str(current_file_dir)
 
-data_dir_path = os.path.join(current_file_dir.parent.parent.parent, "data")
+data_dir_path = os.path.join(current_file_dir.parent, "data")
 sample_dir_path = os.path.join(data_dir_path, "Sample")
 template_dir_path = os.path.join(data_dir_path, "Template")
 sulcus_dir_path = os.path.join(data_dir_path, "Sulcus")
-
 roi_dir_path = os.path.join(data_dir_path, "ROI")
 
 # Functions

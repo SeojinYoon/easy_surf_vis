@@ -13,9 +13,9 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
 
 # Custom Libraries
-from cores.surface_data import surf_paths, load_surfData_fromVolume
-from cores.general_util import find_consecutive_ranges, get_unique_values
-from cores.custom_matplotlib import draw_ticks, draw_spine, draw_label
+from easysurfvis.cores.surface_data import surf_paths, load_surfData_fromVolume
+from easysurfvis.cores.general_util import find_consecutive_ranges, get_unique_values
+from easysurfvis.cores.custom_matplotlib import draw_ticks, draw_spine, draw_label
 
 # Functions
 def surface_profile(template_surface_path, 
