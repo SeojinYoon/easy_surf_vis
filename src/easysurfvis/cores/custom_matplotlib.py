@@ -3,6 +3,8 @@
 This file contains the basic source code to visualize graph using matplotlib
 """
 # Common Libraries
+import os
+import sys
 import numpy as np
 import matplotlib.pylab as plt
 from scipy.stats import cumfreq

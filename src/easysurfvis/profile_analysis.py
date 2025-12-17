@@ -491,8 +491,8 @@ def draw_both_hemi_cross_section_1dPlot(y_range: tuple,
 
 def draw_profile_datas(ax,
                        sample_datas: np.ndarray,
-                       roi_names: np.ndarray,
-                       sulcus_names: np.ndarray,
+                       roi_names: np.ndarray = np.array([]),
+                       sulcus_names: np.ndarray = np.array([]),
                        errors: np.ndarray = np.array([]),
                        p_values: np.ndarray = np.array([]),
                        y_range = None,
@@ -529,8 +529,10 @@ def draw_profile_datas(ax,
         xs.append(x)
     xs = np.array(xs)
 
-    # Lists to store calculated stats for later range calculation
+    # Dummy variables
     all_means = []
+    y_max_padding = 0
+    spacing = 0
     
     # Draw datas
     cmap = mpl.colormaps.get_cmap(cmap)
@@ -549,24 +551,23 @@ def draw_profile_datas(ax,
         # Drawing
         ax.scatter(scatter_xs, sample_data.flatten(), s = 10, alpha = 0.2, color = cond_color)
         ax.plot(cond_x, mean, color = cond_color)
-        ax.fill_between(cond_x, mean - errors[cond_i], mean + errors[cond_i], alpha = 0.2, color = cond_color)
+        if len(errors) != 0:
+            ax.fill_between(cond_x, mean - errors[cond_i], mean + errors[cond_i], alpha = 0.2, color = cond_color)
     all_means = np.array(all_means)
         
     # Determine limit of y-axis
-    min_data, max_data = np.min(sample_datas), np.max(sample_datas)
-    data_height = (max_data - min_data)
-    single_rect_height = data_height / 50
-    total_rect_height = n_cond * single_rect_height
     if y_range is None:
-        y_min, y_max = min_data, max_data
+        y_min, y_max = np.min(sample_datas), np.max(sample_datas)
     else:
         y_min, y_max = y_range[0], y_range[1]
+    single_rect_height = (y_max - y_min) / 50
+    total_rect_height = n_cond * single_rect_height
     
     # Show significant areas
     y_min_padding = total_rect_height
     rect_width = 1
     for cond_i, p in enumerate(p_values):
-        y = y_min - y_min_padding + (single_rect_height * (cond_i + 1))
+        y = y_min - y_min_padding + (single_rect_height * (n_cond - cond_i - 1))
 
         cond_color = cmap(cond_i)
         sig_roi_indices = np.where(p < p_threshold)[0]
@@ -602,48 +603,52 @@ def draw_profile_datas(ax,
     tick_info["y_tick_precision"] = y_tick_precision
     
     ## X-tick
-    x_wide = cond_spread_width / 2
-    unique_rois = get_unique_values(roi_names)
-    roi_ranges = np.array(find_consecutive_ranges(roi_names)) + [-x_wide, x_wide]
-    x_data = [np.arange(start, end + 1, 1) for start, end in roi_ranges]
-    x_names = np.concatenate([np.repeat(unique_rois[i], len(e)) for i, e in enumerate(x_data)])
-    tick_info["x_data"] = np.concatenate(x_data)
-    tick_info["x_names"] = x_names
-    tick_info["x_tick_rotation"] = 0
-    tick_info["x_tick_size"] = tick_size
-    draw_ticks(ax, tick_info)
+    if len(roi_names) > 0:
+        # draw x-tick
+        x_wide = cond_spread_width / 2
+        unique_rois = get_unique_values(roi_names)
+        roi_ranges = np.array(find_consecutive_ranges(roi_names)) + [-x_wide, x_wide]
+        x_data = [np.arange(start, end + 1, 1) for start, end in roi_ranges]
+        x_names = np.concatenate([np.repeat(unique_rois[i], len(e)) for i, e in enumerate(x_data)])
+        tick_info["x_data"] = np.concatenate(x_data)
+        tick_info["x_names"] = x_names
+        tick_info["x_tick_rotation"] = 0
+        tick_info["x_tick_size"] = tick_size
+        draw_ticks(ax, tick_info)
+    else:
+        roi_ranges = None
         
     # Sulcus
-    y_max_padding = 0
-    y_height = y_max - y_min
+    if len(sulcus_names) > 0:
+        y_height = y_max - y_min
+        
+        sulcus_indexes = np.where(sulcus_names != None)[0]
+        if (len(sulcus_indexes) > 0) and (len(sulcus_names) > 0):
+            y_max_padding += (y_height / 10)
+                
+            sulcuses = sulcus_names[sulcus_indexes]
+            sulcus_indexes = np.where(sulcus_names != "")[0]
+            for sulcus_i in sulcus_indexes:
+                sulcus_name = sulcus_abbreviation_name(sulcus_names[sulcus_i])
     
-    sulcus_indexes = np.where(sulcus_names != None)[0]
-    if (len(sulcus_indexes) > 0) and (len(sulcus_names) > 0):
-        y_max_padding += (y_height / 10)
-            
-        sulcuses = sulcus_names[sulcus_indexes]
-        sulcus_indexes = np.where(sulcus_names != "")[0]
-        for sulcus_i in sulcus_indexes:
-            sulcus_name = sulcus_abbreviation_name(sulcus_names[sulcus_i])
+                sulcus_x = (xs[0, sulcus_i-1] + xs[-1, sulcus_i]) / 2
+                ax.text(x = sulcus_x, 
+                        y = y_max + (y_max_padding * 1.5), 
+                        s = sulcus_name,  
+                        va = "center", 
+                        ha = "center",
+                        size = sulcus_text_size,
+                        rotation = 30)
+                
+                ax.text(x = sulcus_x, 
+                        y = y_max + (y_max_padding / 2), 
+                        s = "▼",  
+                        va = "center", 
+                        ha = "center",
+                        size = 11,
+                        rotation = 0)
 
-            sulcus_x = (xs[0, sulcus_i-1] + xs[-1, sulcus_i]) / 2
-            ax.text(x = sulcus_x, 
-                    y = y_max + (y_max_padding * 1.5), 
-                    s = sulcus_name,  
-                    va = "center", 
-                    ha = "center",
-                    size = sulcus_text_size,
-                    rotation = 30)
-            
-            ax.text(x = sulcus_x, 
-                    y = y_max + (y_max_padding / 2), 
-                    s = "▼",  
-                    va = "center", 
-                    ha = "center",
-                    size = 11,
-                    rotation = 0)
-
-    # Div 
+    # Div
     div_xs = (xs[0, 1:] + xs[1, :-1]) / 2
     for div_x in div_xs:
         ax.axvline(x = div_x, 
@@ -652,36 +657,40 @@ def draw_profile_datas(ax,
                    alpha = 0.05,
                    ymin = 0,
                    ymax = (y_max - y_min + y_min_padding) / (y_max - y_min + y_min_padding + y_max_padding))
-        
-    # Draw roi
-    roi_borders = (roi_ranges[:-1,1] + roi_ranges[1:,0]) / 2
-    spacing = roi_borders[0] % int(roi_borders[0])
-    first_border, last_border = np.min(xs.astype(int)) - spacing, np.max(xs.astype(int)) + spacing
-    for roi_x in np.r_[roi_borders, [first_border, last_border]]:
-        ax.axvline(x = roi_x, 
-                   color = "black", 
-                   linestyle = "dashed", 
-                   alpha = 0.3,
-                   ymin = 0,
-                   ymax = (y_max - y_min + y_min_padding) / (y_max - y_min + y_min_padding + y_max_padding))
-    
+
+    # draw roi border
+    if roi_ranges is not None:
+        roi_borders = (roi_ranges[:-1,1] + roi_ranges[1:,0]) / 2
+        spacing = roi_borders[0] % int(roi_borders[0])
+        first_border, last_border = np.min(xs.astype(int)) - spacing, np.max(xs.astype(int)) + spacing
+        for roi_x in np.r_[roi_borders, [first_border, last_border]]:
+            ax.axvline(x = roi_x, 
+                       color = "black", 
+                       linestyle = "dashed", 
+                       alpha = 0.3,
+                       ymin = 0,
+                       ymax = (y_max - y_min + y_min_padding) / (y_max - y_min + y_min_padding + y_max_padding))
+
     # xy lim
     small_padding = (spacing/10)
     ax.set_xlim(0 - spacing, n_roi - spacing + small_padding)
     ax.set_ylim(y_min - y_min_padding, y_max + y_max_padding)
 
 def draw_both_hemi_profile(l_sampling_datas: np.ndarray,
-                           l_sulcus_names: np.ndarray,
-                           l_roi_names: np.ndarray,
-                           l_p_values: np.ndarray, 
                            r_sampling_datas: np.ndarray,
-                           r_sulcus_names: np.ndarray,
-                           r_roi_names: np.ndarray,
-                           r_p_values: np.ndarray,
+                           l_sulcus_names: np.ndarray = np.array([]),
+                           r_sulcus_names: np.ndarray = np.array([]),
+                           l_roi_names: np.ndarray = np.array([]),
+                           r_roi_names: np.ndarray = np.array([]),
+                           l_p_values: np.ndarray = np.array([]), 
+                           r_p_values: np.ndarray = np.array([]),
+                           l_errors: np.ndarray = np.array([]),
+                           r_errors: np.ndarray = np.array([]),
                            y_tick_precision: int = 4,
                            n_inner_yTick = 1,
                            p_threshold = 0.05,
                            y_ticks: np.ndarray = np.array([]),
+                           y_range = None,
                            cmap = "tab10"):
     """
     Draw side-by-side 1d cross-section plots for both Left and Right hemispheres.
@@ -691,10 +700,12 @@ def draw_both_hemi_profile(l_sampling_datas: np.ndarray,
     :param l_sulcus_names(shape: #roi): array of sulcus names for Left Hemisphere.
     :param l_roi_names(shape: #roi): array of ROI names for Left Hemisphere.
     :param l_p_values(shape: [#cond, #roi]): array of p-value per (condition, roi) for Left Hemisphere
+    :param l_errors(shape: [#cond, #roi]): array of error(= std) per (condition, roi) for Left Hemisphere
     :param r_sampling_datas(shape: [#cond, #roi, #data]): data array for Right Hemisphere.
     :param r_sulcus_names(shape: #roi): array of sulcus names for Right Hemisphere.
     :param r_roi_names(shape: #roi): array of ROI names for Right Hemisphere.
     :param r_p_values(shape: [#cond, #roi]): array of p-value per (condition, roi) for Right Hemisphere
+    :param r_errors(shape: [#cond, #roi]): array of error(= std) per (condition, roi) for Left Hemisphere
     :param y_tick_precision: number of decimal places to display on y-axis ticks (Precision).
     :param n_inner_yTick: number of intermediate y-ticks between y_min and y_max.
     :param p_threshold: p-value threshold for statistical significance (default: 0.05).
@@ -703,8 +714,11 @@ def draw_both_hemi_profile(l_sampling_datas: np.ndarray,
     
     :return: (fig, axes) - The created Matplotlib Figure and Axes objects.
     """
-    min_y = min(np.min(l_sampling_datas), np.min(r_sampling_datas))
-    max_y = max(np.max(l_sampling_datas), np.max(r_sampling_datas))
+    if y_range is None:
+        min_y = min(np.min(l_sampling_datas), np.min(r_sampling_datas))
+        max_y = max(np.max(l_sampling_datas), np.max(r_sampling_datas))
+    else:
+        min_y, max_y = y_range
     
     # Draw cross-section data of left hemisphere
     fig, axes = plt.subplots(1, 2, sharey=True)
@@ -713,7 +727,7 @@ def draw_both_hemi_profile(l_sampling_datas: np.ndarray,
                        sample_datas = l_sampling_datas, 
                        roi_names = l_roi_names,
                        sulcus_names = l_sulcus_names,
-                       errors = sem(l_sampling_datas, axis = 2),
+                       errors = l_errors,
                        p_values = l_p_values,
                        n_inner_yTick = n_inner_yTick,
                        y_ticks = y_ticks,
@@ -724,7 +738,7 @@ def draw_both_hemi_profile(l_sampling_datas: np.ndarray,
                        sample_datas = r_sampling_datas, 
                        roi_names = r_roi_names,
                        sulcus_names = r_sulcus_names,
-                       errors = sem(r_sampling_datas, axis = 2),
+                       errors = r_errors,
                        p_values = r_p_values, 
                        n_inner_yTick = n_inner_yTick,
                        y_ticks = y_ticks,
@@ -749,16 +763,6 @@ def draw_both_hemi_profile(l_sampling_datas: np.ndarray,
     return fig, axes
     
 if __name__ == "__main__":
-    template_surface_path = '/home/seojin/single-finger-planning/data/surf/fs_LR.164k.L.flat.surf.gii'
-    surface_data_path = '/home/seojin/single-finger-planning/data/surf/group.psc.L.Planning.func.gii'
-    from_point = np.array([-43, 86])  # x_start, y_start
-    to_point = np.array([87, 58])    # x_end, y_end
-    width = 20
+    pass
     
-    cross_section_result_info = surface_profile(template_surface_path = template_surface_path, 
-                                                 urface_data_path = surface_data_path, 
-                                                 from_point = from_point, 
-                                                 to_point = to_point, 
-                                                 width = width)
-    virtual_stip_mask = cross_section_result_info["virtual_stip_mask"]
     
