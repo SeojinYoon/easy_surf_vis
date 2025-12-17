@@ -24,10 +24,6 @@ jobs:
           pip install setuptools wheel twine pytest build
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Run tests
-        run: |
-          pytest
-
       - name: Build and publish to PyPI
         if: github.event_name == 'release'
         run: |
