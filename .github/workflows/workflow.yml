@@ -11,10 +11,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4  # v3 -> v4 (최신 버전 권장)
+      - uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5 # [수정 2] v333 -> v5 (오타 수정 및 최신화)
+        uses: actions/setup-python@v5
         with:
           python-version: "3.x"
 
@@ -27,7 +27,6 @@ jobs:
       - name: Build and publish to PyPI
         if: github.event_name == 'release'
         run: |
-          # [개선] setup.py 직접 호출 대신 build 모듈 사용 (권장)
           python -m build
           twine upload dist/* --verbose --skip-existing
         env:

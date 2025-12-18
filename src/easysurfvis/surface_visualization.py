@@ -692,7 +692,7 @@ def show_interactive_brain(data_info: dict,
             opacity = 0,
             cmin = cscale[0],
             cmax = cscale[1],
-            colorscale = cmap.capitalize(), # cmap 변수가 'jet'이라면 Plotly에서는 'Jet' (대소문자 주의)
+            colorscale = cmap.capitalize(),
             showscale = True,
             colorbar = dict(
                 orientation = "h",

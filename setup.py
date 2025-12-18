@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name = "easysurfvis",
-    version = "1.0.1",
+    version = "1.0.2",
     author = "seojin",
     author_email = "pures1@hanyang.ac.kr",
     description = "visualize surface map easily",
@@ -23,10 +23,15 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.8',
-    install_requires = [
-        "numpy",
-        "pandas",
-    ]
+    python_requires='<=3.12',
+    install_requires=[
+        "SUITPy",
+        "neuroimagingtools",
+        "nibabel",
+        "nilearn",
+        "opencv-python",
+        "flask",
+        "flask-cors",
+    ],
 )
 
