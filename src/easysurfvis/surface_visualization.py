@@ -651,10 +651,10 @@ def show_interactive_brain(data_info: dict,
                                name = "R_nodes"))
 
     # Sulcus
+    z_lift = 1.0
     for sulcus_name in l_sulcus_info:
         pts = np.array(l_sulcus_info[sulcus_name])
         n_point = len(pts)
-        z_lift = 1.0
         
         traces.append(go.Scatter3d(
             x = pts[:,0],
