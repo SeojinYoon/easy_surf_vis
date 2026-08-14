@@ -7,6 +7,7 @@ import numpy as np
 import nibabel as nb
 import matplotlib.pylab as plt
 import matplotlib.image as mpimg
+from matplotlib.patches import Rectangle
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from nilearn.plotting import plot_surf_roi
 import SUITPy as suit

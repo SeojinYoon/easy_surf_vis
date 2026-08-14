@@ -122,7 +122,8 @@ def show_sulcus(surf_ax,
                 color = "white", 
                 linestyle = "dashed",
                 isLabel = False,
-                sulcus_dummy_name = "sulcus"):
+                sulcus_dummy_name = "sulcus",
+                text_size = 10):
     """
     Show sulcus base on surf axis
 
@@ -152,7 +153,7 @@ def show_sulcus(surf_ax,
                          color = "white", 
                          horizontalalignment = "center", 
                          verticalalignment = "center",
-                         size = 10)
+                         size = text_size)
 
     return copy_ax
 
