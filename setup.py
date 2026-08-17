@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name = "easysurfvis",
-    version = "1.0.3",
+    version = "1.0.4",
     author = "seojin",
     author_email = "pures1@hanyang.ac.kr",
     description = "visualize surface map easily",
