@@ -2,7 +2,7 @@ name: Deploy to PyPI
 
 on:
   release:
-    types: [created, published]
+    types: [published]
 
 jobs:
   build-and-publish:
