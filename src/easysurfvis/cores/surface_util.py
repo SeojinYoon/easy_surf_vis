@@ -90,6 +90,34 @@ def mean_datas(volume_data_paths: list,
         return_data = mean_data
     return return_data
 
+def mean_surface_datas(surf_datas: np.ndarray, 
+                       hemisphere: str, 
+                       is_do_smoothing: bool = False,
+                       sigma: float = 2.0, 
+                       depths: list = [0,0.2,0.4,0.6,0.8,1.0]):
+    """
+    average all datas on surface data & do smoothing
+
+    :param surf_datas: surface data per each subject (shape: #vertex, #data)
+    :param hemisphere: "L" or "R"
+    :param is_do_smoothing: Flag to do smoothing after mean process
+    :param sigma: standard deviation for Gaussian weighting
+    :param depths: Depths of points along line at which to map (0=white/gray, 1=pial). ex) [0.0,0.2,0.4,0.6,0.8,1.0]
+    """
+
+    template_path = surf_paths(hemisphere)[f"{hemisphere}_template_surface_path"]
+    temploate_surface_data = nb.load(template_path)
+    vertex_locs = temploate_surface_data.darrays[0].data[:, :2]
+
+    mean_data = np.mean(surf_datas, axis = 1)
+    if is_do_smoothing:
+        return_data = gaussian_weighted_smoothing(coords = vertex_locs, 
+                                                  values = mean_data, 
+                                                  sigma = sigma)
+    else:
+        return_data = mean_data
+    return return_data
+
 if __name__ == "__main__":
     from surface_data import template_dir_path, sample_dir_path
     
